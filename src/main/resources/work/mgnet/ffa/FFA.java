@@ -98,35 +98,7 @@ public class FFA {
 	public static ConfigurationNode node;
 	
 	public static String mapname;
-	
-	public void saveKit(String name, Inventory inventory) throws Exception {
-		File kitFile = Paths.get(privateConfigDir.toString(), name + ".kit").toFile();
-		if (!kitFile.exists()) kitFile.createNewFile();
-		ArrayList<DataView> items = InventorySerializer.serializeInventory(inventory);
-		ArrayList<String> itemsS = new ArrayList<>();
-		
-		for (DataView dataView : items) {
-			
-		}
-		
-		new PrintWriter(kitFile).close();
-		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(kitFile));
-		oos.writeObject(items);
-		oos.close();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public Inventory loadKit(String name) throws Exception {
-		File kitFile = Paths.get(privateConfigDir.toString(), name + ".kit").toFile();
-		if (!kitFile.exists()) throw new Exception();
-		List<DataView> items;
-		ObjectInputStream oos = new ObjectInputStream(new FileInputStream(kitFile));
-		items = (List<DataView>) oos.readObject();
-		oos.close();
-		Inventory inv = Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(this);
-		InventorySerializer.deserializeInventory(items, inv);
-		return inv;
-	}
+
 	
 	public ConfigurationNode loadConfig() throws IOException {
 		potentialFile = Paths.get(privateConfigDir.toString(), "config.yml");
@@ -253,7 +225,7 @@ public class FFA {
 				p.openInventory(source);*/
 				
 				try {
-					p.openInventory(loadKit("test"));
+					p.openInventory(Kits.loadKit("test", privateConfigDir));
 				} catch (Exception e) {
 					e.printStackTrace();
 					p.openInventory(Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(Sponge.getPluginManager().getPlugin("ffa").get()));
@@ -300,7 +272,7 @@ public class FFA {
 				}
 				
 				try {
-					p.openInventory(loadKit("test"));
+					p.openInventory(Kits.loadKit("test", privateConfigDir));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -484,7 +456,7 @@ public class FFA {
 	@Listener
 	public void onInv(InteractInventoryEvent.Close e) throws Exception {
 		if (edit.contains(((Player) e.getSource()).getName())) {
-			saveKit("test", e.getTargetInventory());
+			Kits.saveKit("test", e.getTargetInventory(), privateConfigDir);
 			System.out.println("wtf");
 			edit.remove(((Player) e.getSource()).getName());
 		}

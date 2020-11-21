@@ -43,11 +43,10 @@ public class InventorySerializer {
     return slots;
   }
 
-  public static boolean deserializeInventory(List<DataView> slots, Inventory inventory) {
+  public static Inventory deserializeInventory(List<DataView> slots, Inventory inventory) {
     Map<Integer, ItemStack> stacks = new HashMap<>();
     int i;
     ItemStack stack;
-    boolean fail = false;
 
     for (DataView slot : slots) {
       i = slot.getInt(SLOT).get();
@@ -58,8 +57,6 @@ public class InventorySerializer {
         stacks.put(i, stack);
       } catch (NoSuchElementException e) {
         stacks.remove(i);
-
-        fail = true;
       }
     }
 
@@ -71,8 +68,6 @@ public class InventorySerializer {
           slot.set(stacks.get(i));
         } catch (NoSuchElementException e) {
           slot.clear();
-
-          fail = true;
         }
       } else {
         slot.clear();
@@ -81,7 +76,7 @@ public class InventorySerializer {
       ++i;
     }
 
-    return fail;
+    return inventory;
   }
 
   static DataView serializeItemStack(ItemStack item) {
